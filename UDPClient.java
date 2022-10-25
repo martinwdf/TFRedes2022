@@ -28,6 +28,7 @@ class UDPClient {
       byte[] sendData = new byte[1024];
       byte[] receiveData = new byte[1024];
 
+      System.out.println("Por favor informe o ID do jogador em valor numérico:");
       // le uma linha do teclado
       String sentence = inFromUser.readLine();
       sendData = sentence.getBytes();
@@ -37,14 +38,18 @@ class UDPClient {
 
       //envia o pacote
       clientSocket.send(sendPacket);
-      // declara o pacote a ser recebido
-      DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+      while(true){
 
-      // recebe o pacote do cliente
-      clientSocket.receive(receivePacket);
-      String sentenceReceived = new String(receivePacket.getData());
-      System.out.println("Mensagem recebida do servidor: " + sentenceReceived);
-      // fecha o cliente
-      clientSocket.close();
+         // declara o pacote a ser recebido
+         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+         
+         // recebe o pacote do cliente
+         clientSocket.receive(receivePacket);
+         String sentenceReceived = new String(receivePacket.getData());
+         System.out.println("Mensagem recebida do servidor: " + sentenceReceived);
+         // fecha o cliente
+         if(sentenceReceived == "FIM") break;
+      }
+         clientSocket.close();
    }
 }
