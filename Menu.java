@@ -1,17 +1,15 @@
-public class Menu {
-    private Player p1 =  new Player();
-    private Player p2 =  new Player();    
+import java.util.HashMap;
+
+public class Menu {   
     private String message;
 
 
-    public Menu(Player p1, Player p2){
-        this.p1 = p1;
-        this.p2 = p2;
+    public Menu(HashMap<String, Jogador> jogadores){
+        //Faz algo
     }
     public String commands(String command){
         switch (command) {
             case "Login":
-                
                 break;
         
             default:
@@ -19,4 +17,5 @@ public class Menu {
         }
         return message;
     }
+    public void print(){}
 }

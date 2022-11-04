@@ -4,6 +4,7 @@
 
 import java.io.*; // classes para input e output streams e
 import java.net.*;// DatagramaSocket,InetAddress,DatagramaPacket
+import java.util.Arrays;
 
 class UDPClient {
    public static void main(String args[]) throws Exception
@@ -25,31 +26,34 @@ class UDPClient {
       // obtem endereco IP do servidor com o DNS
       InetAddress IPAddress = InetAddress.getByName(serverAddr);
 
+      byte[] resposta = new byte[1024];
       byte[] sendData = new byte[1024];
-      byte[] receiveData = new byte[1024];
-
-      System.out.println("Por favor informe o ID do jogador em valor numérico:");
-      // le uma linha do teclado
-      String sentence = inFromUser.readLine();
-      sendData = sentence.getBytes();
-
-      // cria pacote com o dado, o endereco do server e porta do servidor
-      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-
-      //envia o pacote
-      clientSocket.send(sendPacket);
-      while(true){
-
+      System.out.println("Por favor faça o login com o comando: Login <nickname>:");
+      while (true) {
+         Arrays.fill(sendData,(byte)0);
+         Arrays.fill(resposta,(byte)0);
+         // le uma linha do teclado
+         String sentence = inFromUser.readLine();
+         sendData = sentence.getBytes();
+         
+         // cria pacote com o dado, o endereco do server e porta do servidor
+         DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
+         
+         //envia o pacote
+         clientSocket.send(sendPacket);
          // declara o pacote a ser recebido
-         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+         DatagramPacket receivePacket = new DatagramPacket(resposta, resposta.length);
          
          // recebe o pacote do cliente
          clientSocket.receive(receivePacket);
          String sentenceReceived = new String(receivePacket.getData());
          System.out.println("Mensagem recebida do servidor: " + sentenceReceived);
-         // fecha o cliente
-         if(sentenceReceived == "FIM") break;
       }
-         clientSocket.close();
+      // while(true){
+
+      //    // // fecha o cliente
+      //    // if(sentenceReceived == "FIM") break;
+      //    clientSocket.close();
+      // }
    }
 }

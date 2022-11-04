@@ -1,3 +1,4 @@
+
 import java.net.InetAddress;
 
 public class Jogador {
@@ -52,5 +53,6 @@ public class Jogador {
     public void setInventario(Item[] inventario) {
         this.inventario = inventario;
     }
+
     
 }
