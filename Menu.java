@@ -4,6 +4,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Menu {
@@ -64,9 +65,16 @@ public class Menu {
                 case "Inventario":
                     inventario(jogadorAtual);
                     break;
+                case "Pegar":
+                    pegar(command, jogadorAtual);
+                    break;
+                case "Largar":
+                    largar(command, jogadorAtual);
+                    break;
                 case "Ajuda":
                     ajuda(jogadorAtual);
                     break;
+                
                 default:
                     ajuda(jogadorAtual);
                     break;
@@ -105,12 +113,12 @@ public class Menu {
             respostaCliente = "Formato do comando errado, formato correto: Examinar [Sala/Objeto]";
         }
         else if(command[1].trim().equals("Sala")){
-            int salaId = jogadorAtual.getIdSala();
+            int idSala = jogadorAtual.getIdSala();
             String jogadoresNaSala = "";
             int countJogadores = 0;
             for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
                 System.out.println(set.getKey()+ " -> "+ set.getValue().getNickname());
-                if(salaId == set.getValue().getIdSala() && set.getValue() != jogadorAtual){
+                if(idSala == set.getValue().getIdSala() && set.getValue() != jogadorAtual){
                     jogadoresNaSala += "\nJogador: " + set.getValue().getNickname() + " esta na sala"; 
                     countJogadores++;
                 }
@@ -121,18 +129,19 @@ public class Menu {
             else{
                 jogadoresNaSala = "Jogadores na mesma sala: \n" + jogadoresNaSala;
             }
-            Sala salaAtual = labirinto.getSalas()[salaId];
+            Sala salaAtual = labirinto.getSalas()[idSala];
             respostaCliente = salaAtual.listaPortasAdjacentes() + "\n" +salaAtual.listaObjetos()+ "\n" + jogadoresNaSala;
         }
         
         return respostaCliente;
     }
+    //Funcao mover
     public void mover(String[] command, Jogador jogadorAtual) throws IOException {
         respostaCliente ="";
-        int salaId = jogadorAtual.getIdSala();
+        int idSala = jogadorAtual.getIdSala();
         int salaDestino = -1;
         String direcao = command[1].trim();
-        salaDestino = labirinto.getSalas()[salaId].caminhoPossivel(direcao);
+        salaDestino = labirinto.getSalas()[idSala].caminhoPossivel(direcao);
         if(salaDestino==-1){
             respostaCliente = "Jogador " + jogadorAtual.getNickname() + " Tentou se mover da sala " + jogadorAtual.getIdSala() + " para a direcao " + direcao + ", caminho não existe ou porta esta trancada";
             enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
@@ -143,6 +152,69 @@ public class Menu {
             enviaMensagemRespostaTodosJogadores(respostaCliente);
         }
     }
+
+    //Funcao pegar
+    public void pegar(String[] command, Jogador jogadorAtual) throws IOException {
+        int idSala = jogadorAtual.getIdSala();
+        List<Item> itemsDisponiveis = labirinto.getSalas()[idSala].getItems();
+        respostaCliente = "Item não disponivel para coleta";
+        Item itemAdicionado = null;
+        if(itemsDisponiveis == null){
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{
+            for(int i =0; i < itemsDisponiveis.size(); i++){
+                if(itemsDisponiveis.get(i).getNome().equals(command[1].trim())){
+                    if(jogadorAtual.addItem(itemsDisponiveis.get(i))){
+                        itemAdicionado=itemsDisponiveis.get(i);
+                        labirinto.getSalas()[idSala].removeItem(itemsDisponiveis.get(i));
+                        break;
+                    }
+                }
+            }
+        }
+        if (itemAdicionado == null) {
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{
+            respostaCliente = "\nJogador: " +jogadorAtual.getNickname() + " adicionou Item -> " + itemAdicionado.getNome() + " ao seu inventario";
+            enviaMensagemRespostaTodosJogadores(respostaCliente);
+        }
+        
+    }
+    //Funcao Largar
+    public void largar(String[] command, Jogador jogadorAtual) throws IOException {
+        int idSala = jogadorAtual.getIdSala();
+        respostaCliente = "Item não disponivel para coleta";
+        Item itemRemovido = null;
+        if(command.length != 2){
+            respostaCliente = "\nFormato invalido do comando, correto: Largar [Objeto]";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            
+        }
+        else if(command[1].trim() == "Mapa"){
+            respostaCliente = "\nNão é permitido largar o item mapa";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{   
+            for(int i = 0; i < jogadorAtual.getInventario().size();i++){
+                if(jogadorAtual.getInventario().get(i).getNome().equals(command[1].trim())){
+                    itemRemovido = jogadorAtual.getInventario().get(i);
+                    jogadorAtual.removeItem(itemRemovido);
+                    labirinto.getSalas()[idSala].addItem(itemRemovido);
+                }
+                if(itemRemovido == null){
+                    respostaCliente = "\nItem não está disponível no inventário para remoção";
+                    enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+                }
+                else{
+                respostaCliente = "\nJogador: " +jogadorAtual.getNickname() + " removeu Item -> " + itemRemovido.getNome() + " do seu inventario e deixou na sala " + idSala;
+                enviaMensagemRespostaTodosJogadores(respostaCliente);
+            }
+            }
+        }        
+    }
+    //Funcao inventario
     public void inventario(Jogador jogadorAtual) throws IOException {
         respostaCliente = jogadorAtual.listaInvetario();
         enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);

@@ -1,10 +1,12 @@
+import java.util.ArrayList;
+import java.util.List;
 
 public class Sala {
     private int idSala;
-    private Item items[];
+    List<Item> items = new ArrayList<>();
     private Porta portas[];
 
-    public Sala(int id, Porta portas[], Item items[]) {
+    public Sala(int id, Porta portas[], List<Item> items) {
         this.setIdSala(id);
         this.setPortas(portas);
         this.setItems(items);
@@ -27,11 +29,11 @@ public class Sala {
         this.portas = portas;
     }
 
-    public Item[] getItems() {
+    public List<Item> getItems() {
         return items;
     }
 
-    public void setItems(Item items[]) {
+    public void setItems(List<Item> items) {
         this.items = items;
     }
     public boolean adicionaItemSala(Item item){
@@ -54,10 +56,10 @@ public class Sala {
         String objetos ="";
         if(getItems() == null)return "Nenhum item disponivel na sala";
 
-        if (getItems().length > 0) {
+        if (getItems().size() > 0) {
            objetos = "Objetos Disponiveis:\n";
-           for(int i=0; i< getItems().length; i++){
-            objetos += "\tObjeto " + items[i].getNome() + "\n";
+           for(int i=0; i< getItems().size(); i++){
+            objetos += "\tObjeto " + items.get(i).getNome() + "\n";
         }
         } else {
             objetos = "Nenhum objeto disponivel na sala";
@@ -73,4 +75,11 @@ public class Sala {
         }
         return -1;
     }
+    public boolean removeItem(Item item){
+        return getItems().remove(item);
+    }
+    public boolean addItem(Item item){
+        return getItems().add(item);
+    }
+
 }

@@ -1,10 +1,12 @@
 
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Jogador {
     private String nickname;
     private int idSala;
-    private Item inventario[];
+    List<Item> inventario = new ArrayList<>();
     private InetAddress IPAddress;
     private int receivePort;
 
@@ -46,22 +48,35 @@ public class Jogador {
     public void setNickname(final String nickname) {
         this.nickname = nickname;
     }
-    public Item[] getInventario() {
+    public List<Item> getInventario() {
         return inventario;
     }
 
-    public void setInventario(final Item[] inventario) {
+    public void setInventario(final List<Item> inventario) {
         this.inventario = inventario;
     }
     public String listaInvetario(){
         String resposta = "";
         if(getInventario()==null ) return "\nInventario vazio";
-        if(getInventario().length==0 ) return "\nInventario vazio";
+        if(getInventario().size()==0 ) return "\nInventario vazio";
 
-        for(int i = 0; i <getInventario().length;i++ ){
-            resposta += "\nItem -> " + getInventario()[i].getNome();
+        for(int i = 0; i <getInventario().size();i++ ){
+            resposta += "\nItem -> " + getInventario().get(i).getNome();
         }
         return "\n" + resposta;
+    }
+    public boolean addItem(Item item){
+        if(getInventario()==null){
+            return inventario.add(item);
+        }
+        for(int i =0 ; i < getInventario().size(); i++){
+            if(getInventario().get(i).getNome() == item.getNome())return false;
+        }
+        return inventario.add(item);
+    }
+    public boolean removeItem(Item item){
+        if(item.getNome().trim() == "Mapa") return false;
+        return getInventario().remove(item);
     }
 
     
