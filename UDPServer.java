@@ -20,22 +20,28 @@ class UDPServer {
          int port = Integer.parseInt(args[0]);
          // cria socket do servidor com a porta fornecida como parâmetro
          DatagramSocket serverSocket = new DatagramSocket(port);
+         
          // declara o pacote a ser recebido
          // recebe o pacote do cliente
          HashMap<String, Jogador> jogadores = new HashMap<String, Jogador>();
          // logica para criar os dois jogadores
          byte[] receiveData = new byte[1024];
          byte[] resposta = new byte[1024];
+
          loginInicial(serverSocket, receiveData, resposta, jogadores);
          // pega os dados, o endereco IP e a porta do cliente
          // para poder mandar a msg de volta
          // criar chave para o jogador, sendo que key = Ipaddress:receiveport
          System.out.println("Dois Jogadores com login realizados, iniciando o jogo...");
          // cria pacote com o dado, o endereco do server e porta do servidor
+         System.out.println("jogadores adicionados...");
          for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
-            System.out.println("jogadores adicionados...");
             System.out.println(set.getKey()+ " -> "+ set.getValue().getNickname());
          }
+         System.out.println("Inicializando o jogo...");
+         //Inicia o menu do jogo
+         Menu menu = new Menu(jogadores, serverSocket);
+         menu.commands();
          serverSocket.close();
                   
       }
@@ -74,11 +80,12 @@ class UDPServer {
                      respostaCliente = "Nickname já em uso";
                   }
             }
-            else{respostaCliente = "Comando de login invalido ou máquina já tem um login adicionado";}
+            else{
+               respostaCliente = "Comando de login invalido ou máquina já tem um login adicionado";
+            }
             
             resposta = respostaCliente.getBytes();
-            //127.0.0.1 8586
-            // String key = IPAddress.getHostAddress() + String.valueOf(receivePort);
+            System.out.println("Enviando mensagem jogador" + IPAddress + " -> "+receivePort );
             DatagramPacket sendPacket = new DatagramPacket(resposta, resposta.length, IPAddress, receivePort);
             serverSocket.send(sendPacket);
       }

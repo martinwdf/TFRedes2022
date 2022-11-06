@@ -4,11 +4,12 @@ import java.net.InetAddress;
 public class Jogador {
     String nickname;
     Sala sala;
+    int idSala;
     Item inventario[];
     InetAddress IPAddress;
     int receivePort;
 
-    public Jogador(String nickname, InetAddress IPAddress, int receivePort){
+    public Jogador(final String nickname, final InetAddress IPAddress, final int receivePort) {
         this.nickname = nickname;
         this.IPAddress = IPAddress;
         this.receivePort = receivePort;
@@ -18,7 +19,7 @@ public class Jogador {
         return IPAddress;
     }
 
-    public void setIPAddress(InetAddress iPAddress) {
+    public void setIPAddress(final InetAddress iPAddress) {
         IPAddress = iPAddress;
     }
 
@@ -26,7 +27,7 @@ public class Jogador {
         return receivePort;
     }
 
-    public void setReceivePort(int receivePort) {
+    public void setReceivePort(final int receivePort) {
         this.receivePort = receivePort;
     }
 
@@ -34,7 +35,7 @@ public class Jogador {
         return nickname;
     }
 
-    public void setNickname(String nickname) {
+    public void setNickname(final String nickname) {
         this.nickname = nickname;
     }
 
@@ -42,7 +43,7 @@ public class Jogador {
         return sala;
     }
 
-    public void setSala(Sala sala) {
+    public void setSala(final Sala sala) {
         this.sala = sala;
     }
 
@@ -50,7 +51,7 @@ public class Jogador {
         return inventario;
     }
 
-    public void setInventario(Item[] inventario) {
+    public void setInventario(final Item[] inventario) {
         this.inventario = inventario;
     }
 
