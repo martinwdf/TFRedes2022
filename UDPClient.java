@@ -23,17 +23,6 @@ class UDPClient {
       enviarMensagem.setVariaveis(port, serverAddr, clientSocket);
       receberMensagem.setVariaveis(port, serverAddr, clientSocket);
       System.out.println("Por favor faça o login com o comando: Login <nickname>:");
-      byte[] sendData = new byte[1024];
-
-      final String sentence =" in.nextLine();";
-      InetAddress IPAddress = InetAddress.getByName(serverAddr);
-      Arrays.fill(sendData, (byte) 0);
-      // le uma linha do teclado
-      sendData = sentence.getBytes();
-      
-      // cria pacote com o dado, o endereco do server e porta do servidor
-      DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, IPAddress, port);
-      clientSocket.send(sendPacket);
       // uma thread para receber mensagems outra para enviar
       new Thread(receberMensagem).start();
       new Thread(enviarMensagem).start();
@@ -55,9 +44,11 @@ class EnviarMensagem implements Runnable {
       final Scanner in = new Scanner(System.in);
       byte[] sendData = new byte[1024];
       try {
-         while (in.hasNext()) {
+         // cria o stream do teclado
+         BufferedReader inFromUser = new BufferedReader(new InputStreamReader(System.in));
+         while (true) {
             // System.out.println("Esperando comando do Jogador: ");
-            final String sentence = in.nextLine();
+            String sentence = inFromUser.readLine();
             Arrays.fill(sendData, (byte) 0);
             // le uma linha do teclado
             sendData = sentence.getBytes();
@@ -94,7 +85,7 @@ class ReceberMensagem implements Runnable {
    @Override
    public void run() {
       try {
-         byte[] resposta = new byte[1024];
+         byte[] resposta = new byte[4096];
          try {
             Thread.sleep(2000);
          } catch (InterruptedException ex) {

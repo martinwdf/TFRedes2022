@@ -2,17 +2,25 @@
 import java.net.InetAddress;
 
 public class Jogador {
-    String nickname;
-    Sala sala;
-    int idSala;
-    Item inventario[];
-    InetAddress IPAddress;
-    int receivePort;
+    private String nickname;
+    private int idSala;
+    private Item inventario[];
+    private InetAddress IPAddress;
+    private int receivePort;
 
     public Jogador(final String nickname, final InetAddress IPAddress, final int receivePort) {
         this.nickname = nickname;
         this.IPAddress = IPAddress;
         this.receivePort = receivePort;
+        setIdSala(0);
+    }
+
+    public int getIdSala() {
+        return idSala;
+    }
+
+    public void setIdSala(int idSala) {
+        this.idSala = idSala;
     }
 
     public InetAddress getIPAddress() {
@@ -38,21 +46,22 @@ public class Jogador {
     public void setNickname(final String nickname) {
         this.nickname = nickname;
     }
-
-    public Sala getSala() {
-        return sala;
-    }
-
-    public void setSala(final Sala sala) {
-        this.sala = sala;
-    }
-
     public Item[] getInventario() {
         return inventario;
     }
 
     public void setInventario(final Item[] inventario) {
         this.inventario = inventario;
+    }
+    public String listaInvetario(){
+        String resposta = "";
+        if(getInventario()==null ) return "\nInventario vazio";
+        if(getInventario().length==0 ) return "\nInventario vazio";
+
+        for(int i = 0; i <getInventario().length;i++ ){
+            resposta += "\nItem -> " + getInventario()[i].getNome();
+        }
+        return "\n" + resposta;
     }
 
     

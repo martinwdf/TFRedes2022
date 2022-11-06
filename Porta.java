@@ -1,19 +1,29 @@
 
 public class Porta extends Item {
     private Boolean fechada;
-    private int direcao;
+    private char direcao;
+    private int salaDestino;
 
-    public Porta(String nome, int direcao) {
+    public Porta(String nome, char direcao, boolean fechada, int salaDestino) {
         super(nome);
-        this.setFechada(true);
+        this.setFechada(fechada);
         this.setDirecao(direcao);
+        this.setSalaDestino(salaDestino);
     }
 
-    public int getDirecao() {
+    public int getSalaDestino() {
+        return salaDestino;
+    }
+
+    public void setSalaDestino(int salaDestino) {
+        this.salaDestino = salaDestino;
+    }
+
+    public char getDirecao() {
         return direcao;
     }
 
-    public void setDirecao(int direcao) {
+    public void setDirecao(char direcao) {
         this.direcao = direcao;
     }
 

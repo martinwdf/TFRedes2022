@@ -83,11 +83,13 @@ class UDPServer {
             else{
                respostaCliente = "Comando de login invalido ou máquina já tem um login adicionado";
             }
-            
             resposta = respostaCliente.getBytes();
-            System.out.println("Enviando mensagem jogador" + IPAddress + " -> "+receivePort );
-            DatagramPacket sendPacket = new DatagramPacket(resposta, resposta.length, IPAddress, receivePort);
-            serverSocket.send(sendPacket);
+            if(!String.valueOf(resposta).equals("[B@681a9515")){
+               System.out.println(String.valueOf(resposta));
+               // System.out.println("Enviando mensagem jogador" + IPAddress + " -> "+receivePort );
+               DatagramPacket sendPacket = new DatagramPacket(resposta, resposta.length, IPAddress, receivePort);
+               serverSocket.send(sendPacket);
+            }
       }
 }
 }
