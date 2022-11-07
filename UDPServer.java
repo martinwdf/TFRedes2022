@@ -85,7 +85,6 @@ class UDPServer {
             }
             resposta = respostaCliente.getBytes();
             if(!String.valueOf(resposta).equals("[B@681a9515")){
-               System.out.println(String.valueOf(resposta));
                // System.out.println("Enviando mensagem jogador" + IPAddress + " -> "+receivePort );
                DatagramPacket sendPacket = new DatagramPacket(resposta, resposta.length, IPAddress, receivePort);
                serverSocket.send(sendPacket);

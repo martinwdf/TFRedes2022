@@ -1,6 +1,7 @@
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Labirinto {
     private Sala salas[];
 
@@ -29,8 +30,8 @@ public class Labirinto {
         //Criar Sala id =2
         // 1 porta Leste aberta, 1 porta sul fechada, 1 porta norte aberta
         Porta portaSala2DirecaoSul =  new Porta("portaSala2DirecaoSul", 'S', true, 4);
-        Porta portaSala2DirecaoLeste =  new Porta("portaSala2DirecaoLeste", 'L', true, 3);
-        Porta portaSala2DirecaoNorte =  new Porta("portaSala2DirecaoNorte", 'N', true, 0);
+        Porta portaSala2DirecaoLeste =  new Porta("portaSala2DirecaoLeste", 'L', false, 3);
+        Porta portaSala2DirecaoNorte =  new Porta("portaSala2DirecaoNorte", 'N', false, 0);
         Porta portasSala2[] = {portaSala2DirecaoSul, portaSala2DirecaoLeste, portaSala2DirecaoNorte};
         List<Item> itemsSala2 = new ArrayList<Item>();
         Sala sala2 = new Sala(2, portasSala2, itemsSala2);
@@ -38,21 +39,24 @@ public class Labirinto {
         // Criar sala id =3
         // 1 porta direcao Oeste fechada, 1 porta direcao norte aberta
         // 2 chaves do tesouro na sala
-        Porta portaSala3DirecaoOeste = new Porta("portaSala3DirecaoOeste", 'O', true, 2);
-        Porta portaSala3DirecaoNorte = new Porta("portaSala3DirecaoNorte", 'N', true, 1);
+        Porta portaSala3DirecaoOeste = new Porta("portaSala3DirecaoOeste", 'O', false, 2);
+        Porta portaSala3DirecaoNorte = new Porta("portaSala3DirecaoNorte", 'N', false, 1);
         Porta portasSala3[] = {portaSala3DirecaoOeste, portaSala3DirecaoNorte};
         List<Item> itemsSala3 = new ArrayList<Item>();
-        // TODO criar chaves do tesouro
-        
+        ChaveTesouro chaveTesouro0 = new ChaveTesouro("Chave_Tesouro");        
+        ChaveTesouro chaveTesouro1 = new ChaveTesouro("Chave_Tesouro");     
+        itemsSala3.add(chaveTesouro0);   
+        itemsSala3.add(chaveTesouro1);   
         Sala sala3 = new Sala(3, portasSala3, itemsSala3);
         
         // Criar sala id = 4
         //1 porta direcao norte aberta
         // 1 Tesouro
-        Porta portaSala4DirecaoNorte = new Porta("portaSala4DirecaoNorte", 'N', false, 2);
+        Porta portaSala4DirecaoNorte = new Porta("portaSala4DirecaoNorte", 'N', true, 2);
         Porta portasSala4[] = {portaSala4DirecaoNorte};
         List<Item> itemsSala4 = new ArrayList<Item>();
-        // TODO criar tesouro
+        Tesouro tesouro = new Tesouro("Tesouro");
+        itemsSala4.add(tesouro);
         Sala sala4 = new Sala(4, portasSala4, itemsSala4);
 
         Sala salasAux[] = {sala0, sala1, sala2, sala3, sala4};

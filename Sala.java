@@ -46,9 +46,10 @@ public class Sala {
         String salasAdjacentes = "\nSalas adjacentes:\n";
         //adiciona na string as salas adjacentes
         for(int i=0; i< portas.length; i++){
-            salasAdjacentes += "\tSala " + getPortas()[i].getSalaDestino() + " na direcao " + getPortas()[i].getDirecao() +"\n";
+            String aux = "aberta";
+            if(getPortas()[i].getFechada())aux="fechada";
+            salasAdjacentes += "\tSala " + getPortas()[i].getSalaDestino() + " na direcao " + getPortas()[i].getDirecao() +" com a porta "+getPortas()[i].getNome() +" " + aux + "\n";
         }
-        System.out.println("Cheguei aqui");
         System.out.println(salasAdjacentes);
         return salasAdjacentes;
     }
@@ -69,8 +70,6 @@ public class Sala {
     public int caminhoPossivel(String direcao){
         System.out.println("Cheguei aqui");
         for(int i=0; i< portas.length; i++){
-            System.out.println("direcao " + Character.toString(getPortas()[i].getDirecao()));
-            System.out.println("fechada " +getPortas()[i].getFechada());
             if(Character.toString(getPortas()[i].getDirecao()).equals(direcao) && getPortas()[i].getFechada() == false)return getPortas()[i].getSalaDestino();
         }
         return -1;

@@ -56,8 +56,7 @@ public class Menu {
             String comandoAtual = command[0].trim();
             switch (comandoAtual) {
                 case "Examinar":
-                    respostaCliente = Examinar(command, jogadorAtual);
-                    enviaMensagemRespostaTodosJogadores(respostaCliente);
+                    examinar(command, jogadorAtual);
                     break;
                 case "Mover":
                     mover(command, jogadorAtual);
@@ -74,7 +73,9 @@ public class Menu {
                 case "Ajuda":
                     ajuda(jogadorAtual);
                     break;
-                
+                case "Usar":
+                    usar(command, jogadorAtual);
+                    break;
                 default:
                     ajuda(jogadorAtual);
                     break;
@@ -82,7 +83,11 @@ public class Menu {
 
         }
     }
-    public void isGameOver(){
+    public void gameOver(Jogador jogadorAtual) throws IOException {
+        respostaCliente = "\nJogador " + jogadorAtual.getNickname() + " Ganhou o jogo";
+        enviaMensagemRespostaTodosJogadores(respostaCliente);
+        enviaMensagemRespostaTodosJogadores("FIM");
+        System.out.println(respostaCliente);
         setGameOver(true);
     }
     public void enviaMensagemRespostaTodosJogadores(String respostaCliente) throws IOException {
@@ -90,9 +95,7 @@ public class Menu {
         resposta = respostaCliente.getBytes();
         //127.0.0.1 8586
         // String key = IPAddress.getHostAddress() + String.valueOf(receivePort);
-        System.out.println("Tentando eviar mensagem para os jogadores");
         for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
-            System.out.println(set.getKey()+ " -> "+ set.getValue().getNickname());
             DatagramPacket sendPacket = new DatagramPacket(resposta, resposta.length, set.getValue().getIPAddress(), set.getValue().getReceivePort());
             serverSocket.send(sendPacket);
          }
@@ -107,7 +110,7 @@ public class Menu {
     }
 
 
-    public String Examinar(String[] command, Jogador jogadorAtual){
+    public void examinar(String[] command, Jogador jogadorAtual) throws IOException {
         respostaCliente ="";
         if(command.length != 2){
             respostaCliente = "Formato do comando errado, formato correto: Examinar [Sala/Objeto]";
@@ -131,16 +134,24 @@ public class Menu {
             }
             Sala salaAtual = labirinto.getSalas()[idSala];
             respostaCliente = salaAtual.listaPortasAdjacentes() + "\n" +salaAtual.listaObjetos()+ "\n" + jogadoresNaSala;
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
         }
         
-        return respostaCliente;
     }
     //Funcao mover
     public void mover(String[] command, Jogador jogadorAtual) throws IOException {
         respostaCliente ="";
         int idSala = jogadorAtual.getIdSala();
         int salaDestino = -1;
-        String direcao = command[1].trim();
+        String direcao = "";
+        if(command.length != 2){
+            respostaCliente = "\nFormato invalido do comando, correto: Mover [N/S/L/O]";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            
+        }
+        else{
+            direcao = command[1].trim();
+        }
         salaDestino = labirinto.getSalas()[idSala].caminhoPossivel(direcao);
         if(salaDestino==-1){
             respostaCliente = "Jogador " + jogadorAtual.getNickname() + " Tentou se mover da sala " + jogadorAtual.getIdSala() + " para a direcao " + direcao + ", caminho não existe ou porta esta trancada";
@@ -148,9 +159,13 @@ public class Menu {
         }else{
             respostaCliente = "Jogador " + jogadorAtual.getNickname() + " Se moveu da sala " + jogadorAtual.getIdSala() + " para a sala " + salaDestino;
             jogadorAtual.setIdSala(salaDestino);
-            System.out.println("Nova sala " + jogadorAtual.getIdSala());
+            String[] aux = new String[2];
+            aux[0] = "Examinar";
+            aux[1] = "Sala";
             enviaMensagemRespostaTodosJogadores(respostaCliente);
+            examinar(aux, jogadorAtual);
         }
+
     }
 
     //Funcao pegar
@@ -159,7 +174,16 @@ public class Menu {
         List<Item> itemsDisponiveis = labirinto.getSalas()[idSala].getItems();
         respostaCliente = "Item não disponivel para coleta";
         Item itemAdicionado = null;
-        if(itemsDisponiveis == null){
+        if(command.length != 2){
+            respostaCliente = "\nFormato invalido do comando, correto: Pegar [Objeto]";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            
+        }
+        else if(command[1].trim().equals("Tesouro")){
+            respostaCliente = "\nNão é possivel coletar o objeto tesouro";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else if(itemsDisponiveis == null){
             enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
         }
         else{
@@ -219,7 +243,53 @@ public class Menu {
         respostaCliente = jogadorAtual.listaInvetario();
         enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
     }
-
+    //Funcao usar
+    public void usar(String[] command, Jogador jogadorAtual) throws IOException {
+        int idSala = jogadorAtual.getIdSala();
+            String objeto = command[1].trim();
+            String alvo = " ";
+            if(command.length == 3) {alvo = command[2].trim();}
+            // Caso comando =  Usar Chave
+            System.out.println("Objeto " + objeto + "Alvo " + alvo );
+            // Chave Porta..
+            if(objeto.equals("Chave") && alvo.contains("porta")){
+                boolean existePorta = false;
+                for(int i =0; i< labirinto.getSalas()[idSala].getPortas().length; i++){
+                    Porta portaAtual = labirinto.getSalas()[idSala].getPortas()[i];
+                    if(portaAtual.getNome().equals(alvo)){
+                        existePorta = true;
+                        if(!portaAtual.getFechada()){
+                            respostaCliente = "\nPorta já está aberta";
+                            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+                        }
+                        else{
+                            portaAtual.setFechada(false);
+                            respostaCliente =  "\nJogador: " +jogadorAtual.getNickname() + " abriu a porta -> " + alvo + " na sala " + idSala;
+                            enviaMensagemRespostaTodosJogadores(respostaCliente);
+                        }
+                    }
+                }
+                if(!existePorta){
+                    respostaCliente = "\nPorta não existe na sala";
+                    enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+                }
+            }
+            else if(objeto.equals("Chave_Tesouro") && alvo.equals("Tesouro")){
+                if(idSala == 4){
+                    gameOver(jogadorAtual);
+                }else{
+                    respostaCliente = "\nNão está na mesma sala em que o tesouro";
+                    enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+                }
+            }
+            else if(objeto.equals("Mapa")){
+                // labirinto.geraMapa(idSala);
+            }
+            else{
+                respostaCliente = "\nFormato invalido do comando, correto: Usar [Objeto] {alvo}";
+                enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            }
+    }
     public void ajuda(Jogador jogadorAtual) throws IOException {
         respostaCliente = "\nExaminar [sala/objeto]\n\to Retorna a descrição da sala atual (sala) ou objeto mencionado.\n\to A descrição da sala também deve listar as salas adjacentes e suas\n\trespectivas direções, objetos e demais jogadores presentes no local.\n Mover [N/S/L/O]\n\to O jogador deve mover-se para a direção indicada (norte, sul, leste ou oeste).\n\to Ao entrar numa nova sala, o jogo deve executar automaticamente\n\to comando “examinar sala”, que descreve o novo ambiente ao jogador.\n Pegar [objeto]\n\to O jogador coleta um objeto que está na sala atual.\n\to Alguns objetos não podem ser coletados, como no caso de “porta”.\n Largar [objeto]\n\to O jogador larga um objeto que está no seu inventório, na sala atual.\n Inventário\n\to O jogo lista todos os objetos carregados atualmente pelo jogador. \n Usar [objeto] {alvo}\n\to O jogador usa o objeto mencionado;\n\to Em alguns casos específicos, o objeto indicado necessitará de outro\n\t(alvo) para ser ativado (ex: usar chave porta).\n Falar [texto]\n\to O jogador envia um texto que será retransmitido para todos os jogadores presentes na sala atual.\n Cochichar [texto] [jogador]\n\to O jogador envia uma mensagem de texto apenas para o jogador especificado, se ambos estiverem na mesma sala.\n Ajuda\n\to Lista todos os comandos possíveis do jogo.";
         enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
