@@ -52,7 +52,7 @@ public class Labirinto {
         // Criar sala id = 4
         //1 porta direcao norte aberta
         // 1 Tesouro
-        Porta portaSala4DirecaoNorte = new Porta("portaSala4DirecaoNorte", 'N', true, 2);
+        Porta portaSala4DirecaoNorte = new Porta("portaSala4DirecaoNorte", 'N', false, 2);
         Porta portasSala4[] = {portaSala4DirecaoNorte};
         List<Item> itemsSala4 = new ArrayList<Item>();
         Tesouro tesouro = new Tesouro("Tesouro");
@@ -69,5 +69,29 @@ public class Labirinto {
 
     public void setSalas(Sala salas[]) {
         this.salas = salas;
+    }
+    public String geraMapa(int idSala){
+    String mapa = "";
+    mapa+="Jogador está na sala " +idSala + "\n\nMapa do jogo: \n\n";
+    mapa+="+----------+         +----------+\n";
+    mapa+="|          |         |          |\n";
+    mapa+="|  Sala 0  -----------  Sala 1  |\n";
+    mapa+="|          |         |          |\n";
+    mapa+="+-----|----+         +-----|----+\n";
+    mapa+="      |                    |     \n";
+    mapa+="      |                    |     \n";
+    mapa+="+-----|----+         +-----|----+\n";
+    mapa+="|          |         |          |\n";
+    mapa+="|  Sala 2  -----------  Sala 3  |\n";
+    mapa+="|          |         |          |\n";
+    mapa+="+-----|----+         +----------+\n";
+    mapa+="      |                          \n";
+    mapa+="      |                          \n";
+    mapa+="+-----|----+                     \n";
+    mapa+="|          |                     \n";
+    mapa+="|  Sala 4  |                     \n";
+    mapa+="|          |                     \n";
+    mapa+="+----------+";
+    return mapa;
     }
 }

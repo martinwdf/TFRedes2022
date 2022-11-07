@@ -99,6 +99,13 @@ class ReceberMensagem implements Runnable {
             receiverSocket.receive(receivePacket);
             String sentenceReceived = new String(receivePacket.getData());
             System.out.println("Mensagem recebida do servidor: " + sentenceReceived);
+            if(sentenceReceived.trim().equals("Login realizado com sucesso")){
+               System.out.println("Por favor aguarde os outros jogadores entrarem no jogo ");
+            }
+            else{
+               System.out.println("Por favor forneça um comando: ");
+
+            }
             if (sentenceReceived.trim().equals("FIM")) {
                System.out.println("Jogador x ganhou o jogo");
                receiverSocket.close();

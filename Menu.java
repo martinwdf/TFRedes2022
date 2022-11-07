@@ -37,6 +37,7 @@ public class Menu {
 
     public void commands() throws IOException {
         Jogador jogadorAtual;
+        enviaMensagemRespostaTodosJogadores("Jogadores prontos, incializando jogo...");
         while(!this.gameOver){
             Arrays.fill(receiveData, (byte)0);
             
@@ -50,8 +51,7 @@ public class Menu {
             String key =IPAddress + ":" + receivePort;
             // se o command for irregular ou o Jogador realizar o comando ajuda
             jogadorAtual = jogadores.get(key);
-            System.out.println("Jogador: " + jogadorAtual.getNickname() + " tentando o comando" + Arrays.toString(command));
-
+            // System.out.println("Jogador: " + jogadorAtual.getNickname() + " tentando o comando" + Arrays.toString(command));
             if(command.length > 3) Arrays.fill(command, "Ajuda");
             String comandoAtual = command[0].trim();
             switch (comandoAtual) {
@@ -75,6 +75,12 @@ public class Menu {
                     break;
                 case "Usar":
                     usar(command, jogadorAtual);
+                    break;
+                case "Falar":
+                    falar(command, jogadorAtual);
+                    break;
+                case "Cochichar":
+                    cochicar(command, jogadorAtual);
                     break;
                 default:
                     ajuda(jogadorAtual);
@@ -112,11 +118,12 @@ public class Menu {
 
     public void examinar(String[] command, Jogador jogadorAtual) throws IOException {
         respostaCliente ="";
+        int idSala = jogadorAtual.getIdSala();
+        Sala salaAtual = labirinto.getSalas()[idSala];
         if(command.length != 2){
             respostaCliente = "Formato do comando errado, formato correto: Examinar [Sala/Objeto]";
         }
         else if(command[1].trim().equals("Sala")){
-            int idSala = jogadorAtual.getIdSala();
             String jogadoresNaSala = "";
             int countJogadores = 0;
             for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
@@ -132,9 +139,32 @@ public class Menu {
             else{
                 jogadoresNaSala = "Jogadores na mesma sala: \n" + jogadoresNaSala;
             }
-            Sala salaAtual = labirinto.getSalas()[idSala];
             respostaCliente = salaAtual.listaPortasAdjacentes() + "\n" +salaAtual.listaObjetos()+ "\n" + jogadoresNaSala;
             enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{
+            boolean retornouDescricao = false;
+            Item aux = null;
+            for(int i =0; i < jogadorAtual.getInventario().size();i++){
+                if(command[1].trim().equals(jogadorAtual.getInventario().get(i).getNome())){
+                    aux = jogadorAtual.getInventario().get(i);
+                    retornouDescricao = true;
+                }
+            }
+            for(int i =0; i < salaAtual.getItems().size();i++){
+                if(command[1].trim().equals(salaAtual.getItems().get(i).getNome())){
+                    aux = salaAtual.getItems().get(i);
+                    retornouDescricao = true;
+                }
+            }
+            if (retornouDescricao){
+                respostaCliente = "\nItem " + aux.getNome() + " -> " + aux.getDescricao() ;
+                enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            }
+            else{
+                respostaCliente = "\nItem não está no inventário ou não existe";
+                enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            }
         }
         
     }
@@ -283,12 +313,54 @@ public class Menu {
                 }
             }
             else if(objeto.equals("Mapa")){
-                // labirinto.geraMapa(idSala);
-            }
-            else{
-                respostaCliente = "\nFormato invalido do comando, correto: Usar [Objeto] {alvo}";
+                labirinto.geraMapa(idSala);
+                respostaCliente = "\n" + labirinto.geraMapa(idSala);
                 enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
             }
+            else{
+                respostaCliente = "\nNão é possível utilizar o objeto " + objeto +" no alvo " + alvo ;
+                enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+            }
+    }
+    public void falar(String[] command, Jogador jogadorAtual) throws IOException {
+        int idSala = jogadorAtual.getIdSala();
+        if(command.length != 2){
+            respostaCliente = "\nFormato invalido do comando, correto: Falar [texto]";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{
+            respostaCliente = "Comunicado do Jogador: " + jogadorAtual.getNickname() +": "+ command[1];
+            for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
+                if(set.getValue().getIdSala() == idSala){
+                    enviaMensagemRespostaJogadorEspecico(respostaCliente, set.getValue());
+                }
+            }
+        }
+
+    }
+    public void cochicar(String[] command, Jogador jogadorAtual) throws IOException {
+        int idSala = jogadorAtual.getIdSala();
+        if(command.length < 3){
+            respostaCliente = "\nFormato invalido do comando, correto: Cochicar [texto] [jogador]";
+            enviaMensagemRespostaJogadorEspecico(respostaCliente, jogadorAtual);
+        }
+        else{
+            boolean mensagemEnviada = false;
+            System.out.println("Cheguei aqui " + command[2]);
+            respostaCliente = "Comunicado do Jogador: " + jogadorAtual.getNickname().trim() +": "+ command[1];
+            for (Map.Entry<String, Jogador> set : jogadores.entrySet()) {
+                if(set.getValue().getIdSala() == idSala && set.getValue().getNickname().trim().equals(command[2].trim())){
+                    mensagemEnviada=true;
+                    enviaMensagemRespostaJogadorEspecico(respostaCliente, set.getValue());
+                }
+            }
+            if(mensagemEnviada){
+                enviaMensagemRespostaJogadorEspecico("Mensagem enviada com sucesso", jogadorAtual);
+            }else{
+                enviaMensagemRespostaJogadorEspecico("Jogador não existe ou não está na sala", jogadorAtual);
+            }
+        }
+
     }
     public void ajuda(Jogador jogadorAtual) throws IOException {
         respostaCliente = "\nExaminar [sala/objeto]\n\to Retorna a descrição da sala atual (sala) ou objeto mencionado.\n\to A descrição da sala também deve listar as salas adjacentes e suas\n\trespectivas direções, objetos e demais jogadores presentes no local.\n Mover [N/S/L/O]\n\to O jogador deve mover-se para a direção indicada (norte, sul, leste ou oeste).\n\to Ao entrar numa nova sala, o jogo deve executar automaticamente\n\to comando “examinar sala”, que descreve o novo ambiente ao jogador.\n Pegar [objeto]\n\to O jogador coleta um objeto que está na sala atual.\n\to Alguns objetos não podem ser coletados, como no caso de “porta”.\n Largar [objeto]\n\to O jogador larga um objeto que está no seu inventório, na sala atual.\n Inventário\n\to O jogo lista todos os objetos carregados atualmente pelo jogador. \n Usar [objeto] {alvo}\n\to O jogador usa o objeto mencionado;\n\to Em alguns casos específicos, o objeto indicado necessitará de outro\n\t(alvo) para ser ativado (ex: usar chave porta).\n Falar [texto]\n\to O jogador envia um texto que será retransmitido para todos os jogadores presentes na sala atual.\n Cochichar [texto] [jogador]\n\to O jogador envia uma mensagem de texto apenas para o jogador especificado, se ambos estiverem na mesma sala.\n Ajuda\n\to Lista todos os comandos possíveis do jogo.";

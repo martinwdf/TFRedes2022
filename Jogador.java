@@ -15,6 +15,7 @@ public class Jogador {
         this.IPAddress = IPAddress;
         this.receivePort = receivePort;
         setIdSala(0);
+        this.inventario.add(new Mapa("Mapa"));
     }
 
     public int getIdSala() {
